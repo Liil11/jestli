@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "@fontsource/inter/index.css";
+
 html {
   scroll-behavior: smooth;
 }
@@ -20,3 +22,4 @@ html {
 h1{
     color: rgb(18, 82, 76);
 }
+

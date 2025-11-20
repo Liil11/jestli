@@ -1,25 +1,65 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>jestli — Reset Password</title>
+  @vite('resources/css/app.css')
+</head>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<body class="bg-darkGray min-h-screen flex items-center justify-end p-6 mr-20 text-white font-light">
 
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
+  <img src="{{ asset('image/kucing.png') }}" 
+       class="absolute left-0 bottom-0 h-auto w-2/3" 
+       alt="Decorative Image">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+  <div class="bg-darkDeep rounded-2xl shadow-lg overflow-hidden flex w-dvh">
+
+    {{-- FORM FORGOT PASSWORD --}}
+    <form method="POST" action="{{ route('password.email') }}" class="p-10 flex flex-col justify-center gap-4">
+      @csrf
+
+      <h2 class="text-xl font-semibold mb-4">Forgot Password</h2>
+
+      <p class="text-sm text-gray-400 w-72">
+        Enter your email and we’ll send you a reset password link.
+      </p>
+
+      {{-- EMAIL --}}
+      <div class="mt-4 space-y-2 flex flex-col">
+        <p>Email</p>
+        <input type="email" name="email" 
+               class="bg-darkest rounded-md w-72 border-0 focus:border-tealPrimary focus:ring-tealPrimary" 
+               value="{{ old('email') }}"
+               required autofocus>
+      </div>
+
+      {{-- SUCCESS MESSAGE --}}
+      @if (session('status'))
+        <div class="text-green-400 text-xs mt-1">
+          {{ session('status') }}
         </div>
+      @endif
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+      {{-- ERROR MESSAGE --}}
+      @error('email')
+        <div class="text-red-400 text-xs mt-1">
+          {{ $message }}
         </div>
+      @enderror
+
+      {{-- SUBMIT BUTTON --}}
+      <button type="submit"
+              class="font-medium mt-6 w-72 text-center px-5 py-2 bg-tealPrimary text-white rounded-md">
+        Send Reset Link
+      </button>
+
+      {{-- BACK LINK --}}
+      <p class="text-xs text-gray-400 w-72 text-center mt-3">
+        Remember your password?
+        <a href="{{ route('login') }}" class="text-blue-600">Login</a>
+      </p>
     </form>
-</x-guest-layout>
+
+  </div>
+</body>
+</html>
