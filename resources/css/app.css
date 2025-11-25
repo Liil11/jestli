@@ -19,7 +19,7 @@ html {
 *::-webkit-scrollbar {
   display: none; /* Chrome/Edge/Safari */
 }
-h1{
-    color: rgb(18, 82, 76);
-}
 
+body {
+    font-family: 'Inter', sans-serif;
+}
