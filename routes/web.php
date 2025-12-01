@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\LikeController;
+
 
 Route::get('/', function () {
     return view('landing');
@@ -48,5 +50,10 @@ Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])
 Route::get('/search', [SearchController::class, 'index'])
     ->middleware(['auth'])
     ->name('search');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/posts/{id}/like', [LikeController::class, 'toggle'])
+        ->name('posts.like');
+});
 
 require __DIR__.'/auth.php';

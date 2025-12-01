@@ -39,12 +39,19 @@
 
             <!-- Caption -->
             <div class="px-10 py-5 flex flex-row gap-60">
-                <button class="flex items-center gap-2">
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <x-icons.like class="w-full h-full" />
-                    </div>
-                    <span>80</span>
+                <button
+                    class="like-btn flex items-center gap-1 text-xl"
+                    data-post="{{ $post->id }}"
+                >
+                    <span class="icon select-none">
+                        {{ $post->isLikedBy(auth()->user()) ? '❤️' : '🤍' }}
+                    </span>
+
+                    <span class="count text-sm text-gray-600">
+                        {{ $post->likes->count() }}
+                    </span>
                 </button>
+
                 <button class="flex items-center gap-2">
                     <div class="w-8 h-8 flex items-center justify-center">
                         <x-icons.comment class="w-full h-full" />

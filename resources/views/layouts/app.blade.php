@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jestli</title>
     @vite('resources/css/app.css')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-darkDeep text-white overflow-y-scroll">
 
@@ -112,6 +113,31 @@
 
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".like-btn").forEach(btn => {
+
+        btn.addEventListener("click", function () {
+            const postId = this.dataset.post;
+
+            fetch(`/posts/${postId}/like`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                    "Accept": "application/json"
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.querySelector(".icon").textContent = data.liked ? "❤️" : "🤍";
+                this.querySelector(".count").textContent = data.count;
+            })
+            .catch(err => console.error(err));
+        });
+
+    });
+});
+</script>
 
 </body>
 </html>
