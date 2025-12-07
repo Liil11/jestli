@@ -52,12 +52,93 @@
                     </span>
                 </button>
 
-                <button class="flex items-center gap-2">
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <x-icons.comment class="w-full h-full" />
-                    </div>
-                    <span>80</span>
-                </button>
+                 <!-- Comments section -->
+    <div class="comments-section">
+        @foreach($post->comments as $comment)
+            <div class="comment" data-id="{{ $comment->id }}">
+                <strong>{{ $comment->user->name }}</strong>
+                <p>{{ $comment->content }}</p>
+                @if(auth()->id() === $comment->user_id)
+                    <button class="delete-comment" data-id="{{ $comment->id }}">Delete</button>
+                @endif
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Comment form -->
+    <form class="comment-form" data-post-id="{{ $post->id }}">
+        <input type="text" name="content" placeholder="Add a comment..." required>
+        <button type="submit">Post</button>
+    </form>
+</div>
+
+<script>
+document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const postId = e.target.dataset.postId;
+
+        try {
+            const response = await fetch('/comments', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    content: formData.get('content')
+                })
+            });
+
+            const data = await response.json();
+            if(response.ok) {
+                addCommentToDOM(data.comment, data.user);
+                e.target.reset();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+
+function addCommentToDOM(comment, user) {
+    const commentsSection = document.querySelector('.comments-section');
+    const commentDiv = document.createElement('div');
+    commentDiv.className = 'comment';
+    commentDiv.dataset.id = comment.id;
+    commentDiv.innerHTML = `
+        <strong>${user.name}</strong>
+        <p>${comment.content}</p>
+        <button class="delete-comment" data-id="${comment.id}">Delete</button>
+    `;
+    commentsSection.appendChild(commentDiv);
+}
+
+document.querySelectorAll('.delete-comment').forEach(button => {
+    button.addEventListener('click', async (e) => {
+        const commentId = e.target.dataset.id;
+        if (!confirm('Delete this comment?')) return;
+
+        try {
+            const response = await fetch(`/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            if(response.ok) {
+                document.querySelector(`.comment[data-id="${commentId}"]`).remove();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+</script>
                 <button class="flex items-center gap-2">
                     <div class="w-8 h-8 flex items-center justify-center">
                         <x-icons.upvote class="w-full h-full" />

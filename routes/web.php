@@ -55,5 +55,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/posts/{id}/like', [LikeController::class, 'toggle'])
         ->name('posts.like');
 });
+Route::middleware('auth')->group(function () {
+    Route::post('/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+});
 
 require __DIR__.'/auth.php';
