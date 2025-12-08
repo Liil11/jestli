@@ -55,9 +55,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/posts/{id}/like', [LikeController::class, 'toggle'])
         ->name('posts.like');
 });
+// Route::middleware('auth')->group(function () {
+//     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+//     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+// });
+// Add these routes inside your auth middleware group or wherever appropriate
 Route::middleware('auth')->group(function () {
-    Route::post('/comments', [CommentController::class, 'store']);
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+    Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
 require __DIR__.'/auth.php';

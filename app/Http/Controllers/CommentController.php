@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -10,7 +11,7 @@ class CommentController extends Controller
     {
         $request->validate([
             'post_id' => 'required|exists:posts,id',
-            'content' => 'required|string|max:255'
+            'content' => 'required|string|max:500'
         ]);
 
         $comment = Comment::create([
@@ -20,18 +21,18 @@ class CommentController extends Controller
         ]);
 
         // Load user relationship for response
-        $comment->load('user:id,name,avatar');
+        $comment->load('user:id,name');
 
         return response()->json([
             'comment' => $comment,
             'user' => $comment->user
-        ]);
+        ], 201);
     }
 
     public function destroy(Comment $comment)
     {
         if ($comment->user_id !== auth()->id()) {
-            abort(403);
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $comment->delete();

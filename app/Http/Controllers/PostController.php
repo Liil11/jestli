@@ -9,9 +9,8 @@ class PostController extends Controller
 {
     public function index()
     {
-        // feed: show posts from all users sorted newest first (simple for now)
-        $posts = Post::with('user')->latest()->paginate(9);
-        return view('posts.index', compact('posts'));
+        $posts = Post::with(['user', 'comments.user'])->latest()->paginate(10);
+        return view('posts.index', compact('posts')); 
     }
 
     public function create()
