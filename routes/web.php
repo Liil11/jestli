@@ -85,4 +85,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/user/{user}/follow', [FollowController::class, 'toggle'])->name('user.follow');
 
+    Route::get('/about-us', function () {
+    return view('pages.about');
+})->name('about');
+
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
 });

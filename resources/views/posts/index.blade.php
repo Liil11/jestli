@@ -13,7 +13,7 @@
 <div class="max-w-3xl mx-auto space-y-8 bg-feedsbg min-h-screen py-2" id="feed-container">
 
     @foreach($posts as $post)
-        <article class="post-item bg-feedsbg w-full overflow-visible flex flex-col text-white border-b border-gray-800" id="post-{{ $post->id }}">
+        <article class="post-item bg-feedsbg w-full overflow-visible flex flex-col text-white border-b border-grayComp" id="post-{{ $post->id }}">
             
             <header class="flex items-center justify-between px-6 pt-4 relative">
                 <a href="{{ route('profile.show', $post->user->id) }}" class="flex items-center space-x-4 group">
@@ -65,7 +65,7 @@
                 </button>
             </div>
 
-            <div id="comments-section-{{ $post->id }}" class="hidden px-6 pb-6 bg-[#151515] border-t border-gray-800">
+            <div id="comments-section-{{ $post->id }}" class="hidden px-6 pb-6 bg-[#151515] border-t border-grayComp">
                 <form onsubmit="event.preventDefault(); submitCommentAjax({{ $post->id }});" class="flex gap-3 mb-4 pt-4">
                     @csrf
                     <div class="w-8 h-8 rounded-full bg-gray-600 flex-shrink-0 overflow-hidden">

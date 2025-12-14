@@ -18,7 +18,7 @@
             Menggunakan 'left-1/2 -translate-x-1/2' agar container HANYA seukuran avatar.
             Tidak ada lagi layer transparan yang menutupi tombol di kiri-kanan.
         --}}
-        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-10">
+        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-2">
             <div class="w-32 h-32 rounded-full border-4 border-[#121212] overflow-hidden bg-gray-700">
                 @if($user->avatar)
                     <img src="{{ Storage::url($user->avatar) }}" class="w-full h-full object-cover" alt="Avatar">
@@ -32,13 +32,13 @@
     </div>
 
     {{-- INFO USER --}}
-    <div class="mt-20 text-center px-4 relative z-20">
+    <div class="mt-20 text-center px-4 relative z-2">
         <div class="flex items-center justify-center gap-3 mb-2">
             <h1 class="text-2xl font-bold text-white">{{ $user->name }}</h1>
             
             @auth
                 @if(auth()->id() === $user->id)
-                    <button id="openEditProfileBtn" class="bg-teal-600/20 text-teal-400 text-[11px] font-bold px-3 py-0.5 rounded-sm border border-teal-600/50 hover:bg-teal-600 hover:text-white transition uppercase tracking-wider relative z-30">
+                    <button id="openEditProfileBtn" class="bg-teal-600/20 text-teal-400 text-[11px] font-bold px-3 py-0.5 rounded-full border border-teal-600/50 hover:bg-teal-600 hover:text-white transition tracking-wider relative z-2">
                         Edit
                     </button>
                 @else
@@ -53,7 +53,7 @@
                     <button 
                         onclick="toggleFollow(this, {{ $user->id }})"
                         data-following="{{ $isFollowing ? 'true' : 'false' }}"
-                        class="relative z-50 cursor-pointer px-4 py-1 rounded-full text-xs font-bold transition-all duration-200 border
+                        class="relative z-2 cursor-pointer px-4 py-1 rounded-full text-xs font-bold transition-all duration-200 border
                         {{ $isFollowing 
                             ? 'bg-transparent text-gray-300 border-gray-600 hover:border-red-500 hover:text-red-500' 
                             : 'bg-white text-black border-white hover:bg-gray-200' 
@@ -69,7 +69,7 @@
         </p>
 
         {{-- STATS COUNTER --}}
-        <div class="flex justify-center gap-6 mt-5 text-xs font-medium text-gray-400 relative z-30">
+        <div class="flex justify-center gap-6 mt-5 text-xs font-medium text-gray-400 relative z-2">
             {{-- Following --}}
             <div onclick="openUserModal('following')" class="cursor-pointer hover:text-white transition group">
                 <span class="text-white font-bold text-sm group-hover:underline decoration-teal-500 underline-offset-4" id="following-count">
@@ -94,7 +94,7 @@
     </div>
 
     {{-- TAB NAVIGATION --}}
-    <div class="mt-8 border-b border-gray-800 sticky top-[72px] bg-[#121212] z-20">
+    <div class="mt-8 border-b border-grayComp sticky top-[72px] bg-[#121212] z-2">
         <div class="flex justify-center gap-12 text-sm font-medium">
             <button onclick="switchTab('posts')" id="tab-btn-posts" class="tab-btn pb-3 border-b-2 border-teal-500 text-white px-2 transition-colors">
                 Post
@@ -266,46 +266,77 @@
 
 {{-- MODAL LIST USER (FOLLOWERS / FOLLOWING) --}}
 <div id="userListModal" class="fixed inset-0 z-[70] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#121212] w-full max-w-md rounded-xl shadow-2xl border border-gray-800 flex flex-col max-h-[80vh]">
+    <div class="bg-[#121212] w-full max-w-sm rounded-xl shadow-2xl border border-gray-800 flex flex-col max-h-[60vh]">
+        
+        {{-- Header Modal --}}
         <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#121212] rounded-t-xl sticky top-0 z-10">
-            <h3 id="modalTitle" class="text-white font-bold text-lg capitalize">Followers</h3>
-            <button onclick="closeUserModal()" class="text-gray-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <h3 id="modalTitle" class="text-white font-bold text-lg capitalize tracking-wide">Followers</h3>
+            <button onclick="closeUserModal()" class="text-gray-400 hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
+
+        {{-- Content List (Scrollable) --}}
         <div class="overflow-y-auto p-2 flex-1 custom-scrollbar">
-            <div id="list-followers" class="user-list-content hidden space-y-2">
+            
+            {{-- LIST FOLLOWERS --}}
+            <div id="list-followers" class="user-list-content hidden space-y-1">
                 @forelse($followers as $f)
-                    <div class="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg transition">
-                        <a href="{{ route('profile.show', $f->id) }}" class="flex items-center gap-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($f->name) }}&background=random" class="w-10 h-10 rounded-full bg-gray-700">
-                            <div>
-                                <p class="text-white font-bold text-sm">{{ $f->name }}</p>
-                                <p class="text-gray-500 text-xs">User</p>
-                            </div>
-                        </a>
-                    </div>
+                    <a href="{{ route('profile.show', $f->id) }}" class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition group">
+                        
+                        {{-- Avatar Logic (Database / Initials) --}}
+                        <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 border border-transparent group-hover:border-gray-600">
+                            @if($f->avatar)
+                                <img src="{{ Storage::url($f->avatar) }}" class="w-full h-full object-cover" alt="{{ $f->name }}">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center font-bold text-white bg-teal-600 text-sm">
+                                    {{ strtoupper(substr($f->name, 0, 1)) }}
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Nama User --}}
+                        <span class="text-gray-200 font-semibold text-sm group-hover:text-white truncate">
+                            {{ $f->name }}
+                        </span>
+                    </a>
                 @empty
-                    <p class="text-center text-gray-500 py-4">Belum ada followers.</p>
+                    <div class="flex flex-col items-center justify-center py-8 text-gray-500">
+                        <p class="text-sm">No followers yet.</p>
+                    </div>
                 @endforelse
             </div>
-            <div id="list-following" class="user-list-content hidden space-y-2">
+
+            {{-- LIST FOLLOWING --}}
+            <div id="list-following" class="user-list-content hidden space-y-1">
                 @forelse($followings as $f)
-                    <div class="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg transition">
-                        <a href="{{ route('profile.show', $f->id) }}" class="flex items-center gap-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($f->name) }}&background=random" class="w-10 h-10 rounded-full bg-gray-700">
-                            <div>
-                                <p class="text-white font-bold text-sm">{{ $f->name }}</p>
-                                <p class="text-gray-500 text-xs">User</p>
-                            </div>
-                        </a>
-                    </div>
+                    <a href="{{ route('profile.show', $f->id) }}" class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition group">
+                        
+                        {{-- Avatar Logic --}}
+                        <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 border border-transparent group-hover:border-gray-600">
+                            @if($f->avatar)
+                                <img src="{{ Storage::url($f->avatar) }}" class="w-full h-full object-cover" alt="{{ $f->name }}">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center font-bold text-white bg-teal-600 text-sm">
+                                    {{ strtoupper(substr($f->name, 0, 1)) }}
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Nama User --}}
+                        <span class="text-gray-200 font-semibold text-sm group-hover:text-white truncate">
+                            {{ $f->name }}
+                        </span>
+                    </a>
                 @empty
-                    <p class="text-center text-gray-500 py-4">Belum mengikuti siapapun.</p>
+                    <div class="flex flex-col items-center justify-center py-8 text-gray-500">
+                        <p class="text-sm">Not following anyone yet.</p>
+                    </div>
                 @endforelse
             </div>
+
         </div>
     </div>
 </div>
