@@ -100,11 +100,15 @@
     <div x-data="{ open: false }" class="relative">
         
         <button @click="open = !open" type="button" class="flex items-center focus:outline-none transition hover:opacity-80">
-            <img 
-                class="h-10 w-10 rounded-full object-cover border border-gray-200" 
-                src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=random&color=fff' }}" 
-                alt="{{ auth()->user()->name }}" 
-            />
+            @if(auth()->user()->avatar)
+                                    <img src="{{ Storage::url(auth()->user()->avatar) }}" class="rounded-full w-12 h-12 object-cover flex" alt="Avatar">
+                                @else
+                                    <div class="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white-600 font-bold">
+                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                        </span>
+                                    </div>
+            @endif
         </button>
 
         <div x-show="open" 
