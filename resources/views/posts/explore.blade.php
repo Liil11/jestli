@@ -10,12 +10,11 @@
         <div class="flex flex-col gap-4">
             {{-- Pastikan controller mengirim variable $topics --}}
             @forelse($topics ?? [] as $topic)
-                <a href="{{ route('topics.show', str_replace('#', '', $topic)) }}" 
-                   class="group block w-full border border-gray-600 rounded-lg p-5 text-lg font-medium text-gray-200 transition-all duration-200 hover:bg-white/10 hover:border-white hover:text-white">
+                <a href="{{ route('topics.show', $topic->slug ?? Str::slug($topic->name ?? $topic)) }}" 
+                class="group block w-full border border-gray-600 rounded-lg p-5 text-lg font-medium text-gray-200 transition-all duration-200 hover:bg-white/10 hover:border-white hover:text-white">
                     
-                    {{-- Menambahkan tanda # jika belum ada --}}
-                    {{ Str::startsWith($topic, '#') ? $topic : '#' . $topic }}
-                
+                    {{-- Show the topic name with # prefix --}}
+                    #{{ $topic->name ?? $topic }}
                 </a>
             @empty
                 <a href="#" class="block w-full border border-gray-600 rounded-lg p-5 text-lg font-medium text-gray-200 hover:border-white hover:bg-white/10">#Lorem</a>

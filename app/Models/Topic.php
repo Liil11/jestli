@@ -12,4 +12,10 @@ class Topic extends Model
         // Jika diurutkan berdasarkan upvote (Logic Topic Teratas)
         return $this->belongsToMany(Post::class)->orderBy('upvotes_count', 'desc');
     }
+     protected static function booted()
+    {
+        static::saving(function ($topic) {
+            $topic->name = strtolower($topic->name);
+        });
+    }
 }

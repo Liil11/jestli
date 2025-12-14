@@ -52,11 +52,11 @@ class PostController extends Controller
 
         // --- LOGIKA TOPIC/HASHTAG ---
         if ($request->caption) {
-            preg_match_all('/#(\w+)/', $request->caption, $matches);
+            preg_match_all('/#[a-zA-Z][\w-]*/', $request->caption, $matches);
             
             if (!empty($matches[1])) {
                 foreach ($matches[1] as $tagName) {
-                    $topic = Topic::firstOrCreate(['name' => $tagName]);
+                    $topic = Topic::firstOrCreate(['name' => strtolower($tagName)]);
                     $post->topics()->attach($topic->id);
                 }
             }
@@ -92,7 +92,8 @@ public function destroy(Post $post)
 
     public function explore()
     {
-        $posts = Post::latest()->take(20)->get();
-        return view('posts.explore', compact('posts'));
+        $topics = Topic::orderBy('name')->get(); 
+        $topics = Topic::withCount('posts')->orderByDesc('posts_count')->limit(10)->get();
+        return view('posts.explore', compact('topics'));
     }
 }
