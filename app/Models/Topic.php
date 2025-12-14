@@ -3,19 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Topic extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'slug'];
 
-    public function posts() {
-        // Jika diurutkan berdasarkan upvote (Logic Topic Teratas)
-        return $this->belongsToMany(Post::class)->orderBy('upvotes_count', 'desc');
-    }
-     protected static function booted()
+    protected static function boot()
     {
-        static::saving(function ($topic) {
-            $topic->name = strtolower($topic->name);
+        parent::boot();
+        
+        static::creating(function ($topic) {
+            $topic->slug = $topic->slug ?? \Str::slug($topic->name);
         });
+        
+        static::updating(function ($topic) {
+            if (!$topic->slug) {
+                $topic->slug = \Str::slug($topic->name);
+            }
+        });
+    }
+
+    public function posts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class);
     }
 }

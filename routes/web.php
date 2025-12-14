@@ -7,6 +7,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\InteractionController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\TopicController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +34,8 @@ Route::middleware('auth')->group(function () {
     */
     Route::get('/dashboard', [PostController::class, 'index'])->name('dashboard');
     Route::get('/explore', [PostController::class, 'explore'])->name('explore');
-
+    // Add this route for showing individual topics
+    Route::get('/topics/{topic:name}', [TopicController::class, 'show'])->name('topics.show');
     /*
     |--------------------------------------------------------------------------
     | Posts

@@ -13,21 +13,6 @@
 <div class="max-w-3xl mx-auto space-y-8 bg-feedsbg min-h-screen py-2" id="feed-container">
 
     @foreach($posts as $post)
-        <article class="post-item bg-feedsbg w-full overflow-visible flex flex-col text-white border-b border-grayShadow relative" id="post-{{ $post->id }}">
-            
-            {{-- HEADER: Avatar + Nama + Menu Titik 3 --}}
-            <header class="flex items-center justify-between px-6 pt-4 relative">
-                {{-- Kiri: Info User --}}
-                <a href="{{ route('profile.show', $post->user->id) }}" class="flex items-center space-x-4 group">
-                    <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center font-semibold overflow-hidden border border-transparent group-hover:border-teal-500 transition">
-                        @if($post->user->avatar)
-                            <img src="{{ Storage::url($post->user->avatar) }}" class="w-full h-full object-cover">
-                        @else
-                            <span class="text-white">{{ strtoupper(substr($post->user->name, 0, 1)) }}</span>
-                        @endif
-                    </div>
-                    <div>
-                        <div class="font-semibold group-hover:text-teal-400 transition">{{ $post->user->name }}</div>
                         <div class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</div>
                     </div>
                 </a>
@@ -59,7 +44,22 @@
             </div>
             
             @if($post->image)
-            <div class="w-full bg-gray-100 flex justify-center">
+<article class="post-item bg-feedsbg w-full overflow-visible flex flex-col text-white border-b border-grayShadow relative" id="post-{{ $post->id }}">
+            
+            {{-- HEADER: Avatar + Nama + Menu Titik 3 --}}
+            <header class="flex items-center justify-between px-6 pt-4 relative">
+                {{-- Kiri: Info User --}}
+                <a href="{{ route('profile.show', $post->user->id) }}" class="flex items-center space-x-4 group">
+                    <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center font-semibold overflow-hidden border border-transparent group-hover:border-teal-500 transition">
+                        @if($post->user->avatar)
+                            <img src="{{ Storage::url($post->user->avatar) }}" class="w-full h-full object-cover">
+                        @else
+                            <span class="text-white">{{ strtoupper(substr($post->user->name, 0, 1)) }}</span>
+                        @endif
+                    </div>
+                    <div>
+                        <div class="font-semibold group-hover:text-teal-400 transition">{{ $post->user->name }}</div>
+                    <div class="w-full bg-gray-100 flex justify-center">
                 <img src="{{ Storage::url($post->image) }}" class="object-contain w-full h-auto max-h-[900px] block" loading="lazy">
             </div>
             @endif
