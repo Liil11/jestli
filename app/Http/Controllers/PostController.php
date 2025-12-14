@@ -71,15 +71,22 @@ class PostController extends Controller
         return view('posts.show', compact('post'));
     }
 
-    public function destroy(Post $post)
+public function destroy(Post $post)
 {
-    if ($post->user_id !== Auth::id()) {
-        abort(403);
+    // Validasi: Pastikan hanya pemilik post yang bisa menghapus
+    if (Auth::id() !== $post->user_id) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
     }
 
+    // Hapus gambar dari storage jika ada
+    if ($post->image) {
+        \Illuminate\Support\Facades\Storage::delete($post->image);
+    }
+
+    // Hapus postingan
     $post->delete();
 
-    return response()->json(['success' => true]);
+    return response()->json(['success' => true, 'message' => 'Post deleted successfully']);
 }
 
 

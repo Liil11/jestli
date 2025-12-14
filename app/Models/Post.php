@@ -40,4 +40,17 @@ class Post extends Model
     public function isUpvotedByAuthUser() {
         return $this->upvotedByUsers()->where('user_id', Auth::id())->exists();
     }
+
+    public function getFormattedCaptionAttribute()
+    {
+        // 1. Escape teks asli agar aman dari XSS (script jahat)
+        $text = e($this->caption);
+
+        // 2. Ubah @username menjadi link
+        return preg_replace(
+            '/@([a-zA-Z0-9_]+)/', 
+            '<a href="/profile/$1" class="text-teal-400 hover:underline font-bold">@$1</a>', 
+            $text
+        );
+    }
 }
