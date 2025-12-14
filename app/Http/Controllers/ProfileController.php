@@ -2,64 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(\App\Models\User $user)
+    public function show(User $user)
     {
-        return view('profile.edit', compact('user'));
+        // 1. TAMBAHAN WAJIB: Hitung jumlah follower/following untuk Header
+        // (Ini diperlukan agar {{ $user->followers_count }} di view tidak error)
+        $user->loadCount(['followers', 'followings', 'posts']);
+
+        // 2. TAMBAHAN WAJIB: Ambil List Followers & Followings untuk MODAL
+        // (Hanya ambil 50 terakhir agar ringan)
+        $followers = $user->followers()->latest()->limit(50)->get();
+        $followings = $user->followings()->latest()->limit(50)->get();
+
+        // 3. LOGIKA ASLI (Tidak diubah-ubah)
+        // Kita tidak pakai withCount('likes') karena Anda sudah punya kolom 'likes_count' di tabel posts
+        $posts = $user->posts()->latest()->get();
+        
+        $media = $user->posts()->whereNotNull('image')->latest()->get();
+        
+        // Ambil komentar user, beserta post terkaitnya
+        $replies = $user->comments()->with('post')->latest()->get();
+
+        return view('profile.show', compact('user', 'posts', 'media', 'replies', 'followers', 'followings'));
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request, User $user)
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if (Auth::id() !== $user->id) {
+            abort(403);
         }
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'avatar' => 'nullable|image|max:2048',
+            'banner' => 'nullable|image|max:4096',
         ]);
 
-        $user = $request->user();
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description, 
+        ];
 
-        Auth::logout();
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) Storage::disk('public')->delete($user->avatar);
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
-        $user->delete();
+        if ($request->hasFile('banner')) {
+            if ($user->banner) Storage::disk('public')->delete($user->banner);
+            $data['banner'] = $request->file('banner')->store('banners', 'public');
+        }
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $user->update($data);
 
-        return Redirect::to('/');
+        return redirect()->back()->with('success', 'Profile updated successfully!');
     }
-    public function show(\App\Models\User $user)
-    {
-        $posts = $user->posts()->latest()->get();
-        return view('profile.show', compact('user', 'posts'));
-    }
-    
-    
 }

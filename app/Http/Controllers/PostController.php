@@ -2,17 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Topic;
 use App\Models\Post;
 use Illuminate\Http\Request;
+// 1. Pastikan Import Facades ini ada
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
     public function index()
-    {
-        // feed: show posts from all users sorted newest first (simple for now)
-        $posts = Post::with('user')->latest()->paginate(9);
-        return view('posts.index', compact('posts'));
-    }
+{
+    $posts = Post::with([
+        'user',
+        'comments.user',
+        'comments.replies.user'
+    ])
+    ->latest()
+    ->paginate(10);
+
+    return view('posts.index', compact('posts'));
+}
+
 
     public function create()
     {
@@ -28,13 +40,29 @@ class PostController extends Controller
 
         $path = $request->file('image')->store('posts', 'public');
 
+        // ============================================================
+        // PERBAIKAN DI SINI:
+        // Ganti auth()->id() menjadi Auth::id() agar error merah hilang
+        // ============================================================
         $post = Post::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(), 
             'image' => $path,
             'caption' => $request->caption,
         ]);
 
-        return redirect()->route('posts.show', $post)->with('success', 'Post created.');
+        // --- LOGIKA TOPIC/HASHTAG ---
+        if ($request->caption) {
+            preg_match_all('/#(\w+)/', $request->caption, $matches);
+            
+            if (!empty($matches[1])) {
+                foreach ($matches[1] as $tagName) {
+                    $topic = Topic::firstOrCreate(['name' => $tagName]);
+                    $post->topics()->attach($topic->id);
+                }
+            }
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Post created.');
     }
 
     public function show(Post $post)
@@ -44,17 +72,20 @@ class PostController extends Controller
     }
 
     public function destroy(Post $post)
-    {
-        $this->authorize('delete', $post); // we'll create a policy or simply check user
-        // delete image file
-        \Storage::disk('public')->delete($post->image);
-        $post->delete();
-        return redirect()->route('dashboard')->with('success', 'Post deleted.');
-    }
-    public function explore()
-    {
-        $posts = \App\Models\Post::latest()->take(20)->get();
-        return view('posts.explore', compact('posts'));
+{
+    if ($post->user_id !== Auth::id()) {
+        abort(403);
     }
 
+    $post->delete();
+
+    return response()->json(['success' => true]);
+}
+
+
+    public function explore()
+    {
+        $posts = Post::latest()->take(20)->get();
+        return view('posts.explore', compact('posts'));
+    }
 }

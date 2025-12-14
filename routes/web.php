@@ -4,49 +4,85 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\InteractionController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FollowController;
 
-Route::get('/', function () {
-    return view('landing');
-})->name('landing');
+/*
+|--------------------------------------------------------------------------
+| Public
+|--------------------------------------------------------------------------
+*/
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [PostController::class, 'index'])->name('dashboard');
-    Route::resource('posts', PostController::class)->except(['edit','update']);
-
-// add this:
-    Route::get('/profile/{user}', function ($user) {
-        $user = \App\Models\User::findOrFail($user);
-        return view('profile.show', compact('user'));
-    })->name('profile.show');
-});
-// Dashboard
-Route::get('/dashboard', [PostController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('dashboard');
-
-// Explore
-Route::get('/explore', [PostController::class, 'explore'])
-    ->middleware(['auth'])
-    ->name('explore');
-
-// Create post
-Route::get('/posts/create', [PostController::class, 'create'])
-    ->middleware(['auth'])
-    ->name('posts.create');
-
-// Show user's posts (profile)
-Route::get('/profile/{user}', [ProfileController::class, 'show'])
-    ->middleware(['auth'])
-    ->name('profile.show');
-
-// Edit profile
-Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])
-    ->middleware(['auth'])
-    ->name('profile.edit');
-
-// Search
-Route::get('/search', [SearchController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('search');
+Route::get('/', fn () => view('landing'))->name('landing');
 
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard & Explore
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/dashboard', [PostController::class, 'index'])->name('dashboard');
+    Route::get('/explore', [PostController::class, 'explore'])->name('explore');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Posts
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('posts', PostController::class)->except(['edit','update']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile
+    |--------------------------------------------------------------------------
+    */
+
+    // 🔥 PROFILE BY USERNAME (UNTUK @MENTION)
+    Route::get('/profile/u/{username}', [ProfileController::class, 'showByUsername'])
+        ->name('profile.username');
+
+    // PROFILE BY ID (TETAP ADA, AMAN)
+    Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/{user}', [ProfileController::class, 'update'])->name('profile.update');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Post Interactions (AJAX)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/posts/{post}/like', [InteractionController::class, 'toggleLike'])->name('posts.like');
+    Route::post('/posts/{post}/upvote', [InteractionController::class, 'toggleUpvote'])->name('posts.upvote');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Comments (AJAX)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/posts/{id}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/comments/{comment}/like', [CommentController::class, 'toggleLike'])->name('comments.like');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+    Route::get('/post/{post}', [PostController::class, 'show'])
+    ->name('posts.show');
+
+    Route::post('/user/{user}/follow', [FollowController::class, 'toggle'])->name('user.follow');
+
+});

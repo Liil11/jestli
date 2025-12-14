@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jestli</title>
     @vite('resources/css/app.css')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
+
+
 <body class="bg-darkDeep text-white overflow-y-scroll">
 
 <div class="flex min-h-screen">
 
-    <!-- Sidebar -->
     <aside class="w-56 bg-grayComp text-white border-r border-grayShadow shadow-md flex flex-col sticky top-0 h-screen overflow-y-auto">
         <img src="{{ asset('image/logo-jestli.png') }}" 
              class="w-24 mx-auto"
@@ -22,10 +25,12 @@
                     <x-icons.home class="w-[37px] h-[37px] text-white" />
                     <p class="pt-2">Home</p>
                 </a>
-                <a href="{{ route('posts.create') }}" class="py-3 px-3 hover:bg-tealPrimary flex gap-[20px] justify-center pr-16">
+                
+                <a href="#" id="openPostModalSidebar" class="py-3 px-3 hover:bg-tealPrimary flex gap-[20px] justify-center pr-16 cursor-pointer">
                     <x-icons.add class="w-[39px] h-[39px] text-white" />
                     <p class="pt-1 pr-2">Post</p>
                 </a>
+
                 <a href="{{ route('explore') }}" class="py-4 px-3 hover:bg-tealPrimary flex gap-6 justify-center pr-16">
                     <x-icons.topic class="w-[30px] h-[30px] text-white" />
                     <p>Topic</p>
@@ -45,26 +50,16 @@
             </nav>
         </div>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="text-red-600 font-semibold hover:text-red-800">
-                Logout
-            </button>
-        </form>
     </aside>
 
-    <!-- Main content -->
     <div class="flex-1 flex flex-col">
 
-        <!-- Top bar -->
         <header class="bg-grayComp text-white shadow px-6 py-4 flex items-center justify-between border-b border-grayShadow sticky top-0 z-10">
-            <!-- Search -->
             <form action="{{ route('search') }}" method="GET" class="w-1/2">
                 <input type="text" name="q" placeholder="Search meme or users..."
                        class="placeholder-formtext w-2/3 bg-formcolor rounded-lg px-4 py-2 border-0 focus:border-tealPrimary focus:ring-tealPrimary">
             </form>
 
-            <!-- Right section -->
             <div class="flex items-center space-x-4">
                 <div class="flex gap-8 mr-20">
                     <a href=""
@@ -98,20 +93,224 @@
                     </a>
                 </div>
 
-                <a href="{{ route('profile.show', auth()->user()?->id) }}" class="font-semibold hover:text-blue-600">
-                    {{ auth()->user()?->name }}
-                </a>
-                <a href="{{ route('profile.edit', auth()->user()?->id) }}" class="text-gray-500 hover:text-blue-500"></a>
+                <script src="//unpkg.com/alpinejs" defer></script>
+
+<div class="flex items-center gap-3">
+    
+    <div x-data="{ open: false }" class="relative">
+        
+        <button @click="open = !open" type="button" class="flex items-center focus:outline-none transition hover:opacity-80">
+            <img 
+                class="h-10 w-10 rounded-full object-cover border border-gray-200" 
+                src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=random&color=fff' }}" 
+                alt="{{ auth()->user()->name }}" 
+            />
+        </button>
+
+        <div x-show="open" 
+             @click.outside="open = false"
+             x-transition:enter="transition ease-out duration-100"
+             x-transition:enter-start="transform opacity-0 scale-95"
+             x-transition:enter-end="transform opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-75"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             class="absolute right-0 mt-2 w-48 bg-grayComp rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5"
+             style="display: none;">
+            
+            <a href="{{ route('profile.show', auth()->user()->id) }}" class="block px-4 py-2 text-sm hover:bg-tealPrimary">
+                View Profile
+            </a>
+
+            <div class="border-t border-grayShadow"></div>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-600 hover:text-white">
+                    Logout
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
             </div>
         </header>
 
-        <!-- Page content -->
         <main class="flex-1">
             @yield('content')
         </main>
-
+        
     </div>
 </div>
+
+
+@include('posts.create')
+
+<script>
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Toggle View Comment Section
+    function toggleComments(postId) {
+        const section = document.getElementById(`comments-section-${postId}`);
+        section.classList.toggle('hidden');
+    }
+
+    // Toggle Like Post
+    async function toggleLike(postId) {
+        const btn = document.getElementById(`like-btn-${postId}`);
+        const countSpan = document.getElementById(`like-count-${postId}`);
+        const icon = btn.querySelector('svg');
+
+        try {
+            const response = await fetch(`/posts/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
+            const data = await response.json();
+
+            // Update UI
+            countSpan.innerText = data.count;
+            if (data.status === 'liked') {
+                btn.classList.add('text-pink-600');
+                btn.classList.remove('hover:text-pink-600');
+                icon.classList.add('fill-current');
+            } else {
+                btn.classList.remove('text-pink-600');
+                btn.classList.add('hover:text-pink-600');
+                icon.classList.remove('fill-current');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // Toggle Upvote Post
+    async function toggleUpvote(postId) {
+        const btn = document.getElementById(`upvote-btn-${postId}`);
+        const countSpan = document.getElementById(`upvote-count-${postId}`);
+        const icon = btn.querySelector('svg');
+
+        try {
+            const response = await fetch(`/posts/${postId}/upvote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
+            const data = await response.json();
+
+            // Update UI
+            countSpan.innerText = data.count;
+            if (data.status === 'upvoted') {
+                btn.classList.add('text-green-500');
+                btn.classList.remove('hover:text-green-500');
+                icon.classList.add('fill-current');
+            } else {
+                btn.classList.remove('text-green-500');
+                btn.classList.add('hover:text-green-500');
+                icon.classList.remove('fill-current');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
+
+<script>
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+/* ===============================
+   SUBMIT COMMENT / REPLY (AJAX)
+================================ */
+function submitCommentAjax(postId, parentId = null) {
+    let input = parentId
+        ? document.getElementById(`reply-input-${parentId}`)
+        : document.getElementById(`comment-input-${postId}`);
+
+    if (!input || input.value.trim() === '') {
+        alert('Komentar tidak boleh kosong');
+        return;
+    }
+
+    fetch(`/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            body: input.value,
+            parent_id: parentId
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Gagal kirim komentar');
+        return res.json();
+    })
+    .then(() => {
+        location.reload(); // ⬅️ SENGAJA reload biar DOM kamu aman
+    })
+    .catch(err => {
+        alert(err.message);
+    });
+}
+
+/* ===============================
+   LIKE COMMENT
+================================ */
+function toggleCommentLike(commentId) {
+    fetch(`/comments/${commentId}/like`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const btn = document.getElementById(`comment-like-btn-${commentId}`);
+        const count = document.getElementById(`comment-like-count-${commentId}`);
+
+        if (data.status === 'liked') {
+            btn.classList.add('text-pink-600');
+            btn.classList.remove('text-gray-500','text-gray-600');
+            count.classList.remove('hidden');
+        } else {
+            btn.classList.remove('text-pink-600');
+        }
+
+        count.innerText = data.count;
+        if (data.count == 0) count.classList.add('hidden');
+    });
+}
+
+/* ===============================
+   DELETE COMMENT
+================================ */
+function deleteComment(commentId) {
+    if (!confirm('Hapus komentar?')) return;
+
+    fetch(`/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(() => {
+        const row = document.getElementById(`comment-row-${commentId}`);
+        if (row) row.remove();
+    });
+}
+</script>
 
 </body>
 </html>
