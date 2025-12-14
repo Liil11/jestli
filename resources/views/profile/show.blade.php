@@ -94,7 +94,7 @@
     </div>
 
     {{-- TAB NAVIGATION --}}
-    <div class="mt-8 border-b border-grayComp sticky top-[72px] bg-[#121212] z-2">
+    <div class="mt-8 pt-2 border-b border-grayShadow sticky top-[72px] bg-[#121212] z-10">
         <div class="flex justify-center gap-12 text-sm font-medium">
             <button onclick="switchTab('posts')" id="tab-btn-posts" class="tab-btn pb-3 border-b-2 border-teal-500 text-white px-2 transition-colors">
                 Post
@@ -603,6 +603,8 @@
                 btn.classList.remove('text-green-500'); btn.classList.add('hover:text-green-500'); icon.classList.remove('fill-current');
             }
         } catch (error) { console.error(error); }
+
+    
     }
 </script>
 @endsection
