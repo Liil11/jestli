@@ -18,10 +18,14 @@
                 
                 <div class="flex gap-4 mb-4">
                     <div class="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0 flex items-center justify-center font-bold text-white overflow-hidden">
-                        @if(Auth::check() && Auth::user()->profile_photo_url)
-                             <img src="{{ Auth::user()->profile_photo_url }}" alt="Avatar" class="w-full h-full object-cover">
-                        @else
-                             {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                         @if(auth()->user()->avatar)
+                                    <img src="{{ Storage::url(auth()->user()->avatar) }}" class="rounded-full w-12 h-12 object-cover flex" alt="Avatar">
+                                @else
+                                    <div class="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white-600 font-bold">
+                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                        </span>
+                                    </div>
                         @endif
                     </div>
                     <textarea name="caption" id="captionInput" rows="3"

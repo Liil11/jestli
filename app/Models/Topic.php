@@ -7,19 +7,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Topic extends Model
 {
-    protected $fillable = ['name', 'slug'];
+    protected $fillable = ['name'];
 
     protected static function boot()
     {
         parent::boot();
         
         static::creating(function ($topic) {
-            $topic->slug = $topic->slug ?? \Str::slug($topic->name);
+            $topic->name = $topic->name ? trim($topic->name) : null;
         });
         
+        // Format name when updating
         static::updating(function ($topic) {
-            if (!$topic->slug) {
-                $topic->slug = \Str::slug($topic->name);
+            if (isset($topic->name)) {
+                $topic->name = trim($topic->name);
             }
         });
     }

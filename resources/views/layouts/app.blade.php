@@ -19,10 +19,10 @@
              class="w-24 mx-auto"
              alt="Decorative Image">
 
-        <nav class="space-y-1 mt-4 text-center text-[16px]">
+        <nav class="space-y-1 mt-4 text-center text-[17px]">
             <div class="flex flex-col">
                 <a href="{{ route('dashboard') }}" class="py-3 pb-4 px-3 hover:bg-tealPrimary flex gap-5 justify-center pr-16">
-                    <x-icons.home class="w-[36px] h-[36px] text-white" />
+                    <x-icons.home class="w-[37px] h-[37px] text-white" />
                     <p class="pt-2">Home</p>
                 </a>
                 
@@ -43,13 +43,12 @@
         </nav>
 
         <div class="border-t flex flex-col gap-2 pt-3 mt-5 border-grayShadow">
-                <h1 class="font-medium text-[17.5px] pl-4 text-left">Information</h1>
-                <nav class="flex flex-col text-left">
-                    {{-- UPDATE: HREF ADDED HERE --}}
-                    <a href="{{ route('about') }}" class="hover:bg-tealPrimary py-2 px-3 pl-11 {{ request()->routeIs('about') ? 'text-tealPrimary font-bold' : '' }}">About Us</a>
-                    <a href="{{ route('contact') }}" class="hover:bg-tealPrimary py-2 px-3 pl-11 {{ request()->routeIs('contact') ? 'text-tealPrimary font-bold' : '' }}">Contact</a>
-                </nav>
-            </div>
+            <h1 class="font-medium text-[18.5px] pl-4">Information</h1>
+            <nav class="flex flex-col text-left">
+                <a href="" class="hover:bg-tealPrimary py-2 px-3 pl-11">About Us</a>
+                <a href="" class="hover:bg-tealPrimary py-2 px-3 pl-11">Contact</a>
+            </nav>
+        </div>
 
     </aside>
 
@@ -63,7 +62,7 @@
 
             <div class="flex items-center space-x-4">
                 <div class="flex gap-8 mr-20">
-                    <a href="{{ route('dashboard') }}"
+                    <a href=""
                        class="relative inline-block
                               after:content-[''] after:absolute after:left-0 after:bottom-0
                               after:h-0.5 after:bg-tealPrimary after:w-full
@@ -73,7 +72,7 @@
                         For You
                     </a>
 
-                    <a href="{{ route('dashboard') }}"
+                    <a href=""
                        class="relative inline-block
                               after:content-[''] after:absolute after:left-0 after:bottom-0
                               after:h-0.5 after:bg-tealPrimary after:w-full
@@ -102,13 +101,13 @@
         
         <button @click="open = !open" type="button" class="flex items-center focus:outline-none transition hover:opacity-80">
             @if(auth()->user()->avatar)
-                                    <img src="{{ Storage::url(auth()->user()->avatar) }}" class="rounded-full w-12 h-12 object-cover flex" alt="Avatar">
-                                @else
-                                    <div class="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
-                                        <span class="text-white-600 font-bold">
-                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                        </span>
-                                    </div>
+                <img src="{{ Storage::url(auth()->user()->avatar) }}" class="rounded-full w-12 h-12 object-cover flex" alt="Avatar">
+            @else
+                <div class="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
+                    <span class="text-white-600 font-bold">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </span>
+                 </div>
             @endif
         </button>
 
