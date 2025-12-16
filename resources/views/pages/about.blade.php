@@ -5,7 +5,6 @@
     
     {{-- Image/Logo Container --}}
     <div class="bg-grayComp rounded-lg p-12 mb-8 flex justify-center items-center shadow-sm">
-        {{-- Menggunakan logo yang sama dengan sidebar, tapi ukuran lebih besar --}}
         <img src="{{ asset('image/logo-jestli.png') }}" alt="Jestli Logo" class="w-48 opacity-90">
     </div>
 

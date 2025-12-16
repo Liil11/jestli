@@ -16,14 +16,13 @@ class Post extends Model
     }
 
     public function comments() {
-        return $this->hasMany(Comment::class)->orderBy('likes_count', 'desc'); // Komen populer di atas
+        return $this->hasMany(Comment::class)->orderBy('likes_count', 'desc');
     }
 
     public function topics() {
         return $this->belongsToMany(Topic::class);
     }
 
-    // Relasi User yang me-like post ini
     public function likedByUsers() {
         return $this->belongsToMany(User::class, 'likes', 'post_id', 'user_id');
     }
@@ -32,7 +31,6 @@ class Post extends Model
         return $this->belongsToMany(User::class, 'upvotes', 'post_id', 'user_id');
     }
 
-    // Helper untuk cek apakah user login sudah like/upvote
     public function isLikedByAuthUser() {
         return $this->likedByUsers()->where('user_id', Auth::id())->exists();
     }
@@ -43,10 +41,8 @@ class Post extends Model
 
     public function getFormattedCaptionAttribute()
     {
-        // 1. Escape teks asli agar aman dari XSS (script jahat)
         $text = e($this->caption);
 
-        // 2. Ubah @username menjadi link
         return preg_replace(
             '/@([a-zA-Z0-9_]+)/', 
             '<a href="/profile/$1" class="text-teal-400 hover:underline font-bold">@$1</a>', 

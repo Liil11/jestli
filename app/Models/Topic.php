@@ -17,7 +17,6 @@ class Topic extends Model
             $topic->name = $topic->name ? trim($topic->name) : null;
         });
         
-        // Format name when updating
         static::updating(function ($topic) {
             if (isset($topic->name)) {
                 $topic->name = trim($topic->name);

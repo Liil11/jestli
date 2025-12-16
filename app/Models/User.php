@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -52,9 +51,6 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Relasi: Satu User memiliki banyak Post
-     */
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
@@ -62,7 +58,6 @@ class User extends Authenticatable
 
     public function comments(): HasMany
     {
-        // Pastikan Model Comment sudah ada di App\Models\Comment
         return $this->hasMany(Comment::class);
     }
 
@@ -72,18 +67,13 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    /**
-     * Relasi: Siapa saja yang mem-follow user ini.
-     */
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id')
                     ->withTimestamps();
     }
 
-    /**
-     * Helper: Cek apakah user ini sedang mem-follow $user lain?
-     */
+
     public function isFollowing(User $user): bool
     {
         return $this->followings()->where('following_id', $user->id)->exists();

@@ -1,16 +1,8 @@
-{{-- CONTAINER UTAMA FEEDS --}}
 <div class="max-w-3xl mx-auto space-y-8 bg-feedsbg min-h-screen py-2" id="feed-container">
 
-    
-        {{-- 
-            ID "post-{{ $post->id }}" penting untuk manipulasi Z-Index lewat JS 
-            Class "relative" penting agar dropdown positioning akurat
-        --}}
         <article class="post-item bg-feedsbg w-full flex flex-col text-white border-b border-grayComp relative transition-all duration-200" id="post-{{ $post->id }}">
-            
-            {{-- HEADER: Avatar + Nama + Menu Titik 3 --}}
+
             <header class="flex items-center justify-between px-6 pt-4 relative ">
-                {{-- Kiri: Info User --}}
                 <a href="{{ route('profile.show', $post->user->id) }}" class="flex items-center space-x-4 group">
                     <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center font-semibold overflow-hidden border border-transparent group-hover:border-teal-500 transition">
                         @if($post->user->avatar)
@@ -24,23 +16,14 @@
                         <div class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</div>
                     </div>
                 </a>
-
-                {{-- Kanan: Menu Titik 3 (Dengan Perbaikan) --}}
                 @if(auth()->id() === $post->user->id)
                     <div class="relative">
-                        {{-- 
-                            FIX 1: Tambahkan 'event' di parameter togglePostMenu 
-                            Agar kita bisa stopPropagation()
-                        --}}
                         <button onclick="togglePostMenu(event, {{ $post->id }})" 
                                 class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-800 transition focus:outline-none">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                             </svg>
                         </button>
-
-                        {{-- Dropdown Menu --}}
-                        {{-- z-1 agar selalu di atas --}}
                         <div id="post-menu-{{ $post->id }}" class="hidden absolute right-0 mt-2 w-32 bg-grayComp border border-grayShadow rounded-lg shadow-lg z-1 overflow-hidden">
                             <button onclick="deletePost({{ $post->id }})" class="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-600 hover:text-white flex items-center gap-2 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,21 +35,16 @@
                     </div>
                 @endif
             </header>
-            
-            {{-- Content Post --}}
-            {{-- Content Post --}}
             <div class="px-6 py-6 text-[19px]">
-                {{-- FIX: Gunakan formatted_caption dari Model --}}
                 <p>{!! nl2br($post->formatted_caption) !!}</p>
             </div>
             
             @if($post->image)
-            <div class="w-full bg-gray-100 flex justify-center">
+            <div class="w-full bg-darkest flex justify-center">
                 <img src="{{ Storage::url($post->image) }}" class="object-contain w-full h-auto max-h-[900px] block" loading="lazy">
             </div>
             @endif
 
-            {{-- Action Buttons --}}
             <div class="px-10 py-5 flex flex-row gap-60 text-gray-400 select-none border-t border-grayComp/20">
                 <button onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="flex items-center gap-2 transition group {{ $post->isLikedByAuthUser() ? 'text-pink-600' : 'hover:text-pink-600' }}">
                     <div class="w-8 h-8 flex items-center justify-center">
@@ -90,7 +68,6 @@
                 </button>
             </div>
 
-            {{-- Comments Section (Hidden by Default) --}}
             <div id="comments-section-{{ $post->id }}" class="hidden px-6 pb-6 bg-[#151515] border-t border-grayComp">
                 <form onsubmit="event.preventDefault(); submitCommentAjax({{ $post->id }});" class="flex gap-3 mb-4 pt-4">
                     @csrf
@@ -117,30 +94,21 @@
 
 </div>
 
-{{-- SCRIPT UPDATE --}}
 <script>
-    // --- FIX MENU TOGGLE LOGIC ---
     function togglePostMenu(event, postId) {
-        // 1. Stop Stop Stop! Jangan biarkan klik ini tembus ke document (agar tidak langsung ketutup)
         event.stopPropagation(); 
 
         const menu = document.getElementById(`post-menu-${postId}`);
         const postCard = document.getElementById(`post-${postId}`);
-
-        // 2. Tutup semua menu lain yang mungkin terbuka
         document.querySelectorAll('[id^="post-menu-"]').forEach(el => {
             if (el.id !== `post-menu-${postId}`) el.classList.add('hidden');
         });
 
-        // 3. Reset z-index semua card lain agar normal kembali
         document.querySelectorAll('.post-item').forEach(el => el.classList.remove('z-1', 'relative'));
         document.querySelectorAll('.post-item').forEach(el => el.classList.add('relative')); // Kembalikan relative default
 
-        // 4. Toggle Menu ini
         menu.classList.toggle('hidden');
 
-        // 5. TRICK PENTING: Jika menu terbuka, angkat Card ini ke layer paling atas (z-1)
-        // Ini mencegah dropdown tertutup oleh card postingan di bawahnya
         if (!menu.classList.contains('hidden')) {
             postCard.classList.add('z-1');
         } else {
@@ -148,20 +116,16 @@
         }
     }
 
-    // Tutup menu saat klik di mana saja di luar tombol/menu
     document.addEventListener('click', function(event) {
         const isButton = event.target.closest('button[onclick^="togglePostMenu"]');
         const isMenu = event.target.closest('[id^="post-menu-"]');
         
         if (!isButton && !isMenu) {
-            // Sembunyikan semua menu
             document.querySelectorAll('[id^="post-menu-"]').forEach(el => el.classList.add('hidden'));
-            // Reset z-index semua post
             document.querySelectorAll('.post-item').forEach(el => el.classList.remove('z-1'));
         }
     });
 
-    // --- FUNGSI DELETE POST ---
     async function deletePost(postId) {
         if (!confirm('Are you sure you want to delete this post?')) return;
 
@@ -178,7 +142,6 @@
 
             if (data.success) {
                 const postElement = document.getElementById(`post-${postId}`);
-                // Animasi hapus biar smooth
                 postElement.style.transition = "all 0.3s ease";
                 postElement.style.opacity = "0";
                 postElement.style.transform = "scale(0.95)";

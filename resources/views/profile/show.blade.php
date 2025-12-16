@@ -2,8 +2,6 @@
 
 @section('content')
 <div class="min-h-screen bg-[#121212] text-white pb-20">
-
-    {{-- HEADER PROFILE (Banner & Avatar) --}}
     <div class="relative w-full h-64 bg-gray-800">
         @if($user->banner)
             <img src="{{ Storage::url($user->banner) }}" class="w-full h-full object-cover" alt="Banner">
@@ -12,12 +10,6 @@
                 <span class="text-4xl opacity-20">No Banner</span>
             </div>
         @endif
-
-        {{-- 
-            FIX FINAL HITBOX: 
-            Menggunakan 'left-1/2 -translate-x-1/2' agar container HANYA seukuran avatar.
-            Tidak ada lagi layer transparan yang menutupi tombol di kiri-kanan.
-        --}}
         <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 z-2">
             <div class="w-32 h-32 rounded-full border-4 border-[#121212] overflow-hidden bg-gray-700">
                 @if($user->avatar)
@@ -31,7 +23,6 @@
         </div>
     </div>
 
-    {{-- INFO USER --}}
     <div class="mt-20 text-center px-4 relative z-2">
         <div class="flex items-center justify-center gap-3 mb-2">
             <h1 class="text-2xl font-bold text-white">{{ $user->name }}</h1>
@@ -42,11 +33,6 @@
                         Edit
                     </button>
                 @else
-                    {{-- 
-                        FIX FINAL TOMBOL:
-                        Tambahkan 'relative z-50 cursor-pointer'.
-                        Ini memaksa tombol bisa diklik meskipun ada elemen lain di sekitarnya.
-                    --}}
                     @php
                         $isFollowing = auth()->user()->isFollowing($user);
                     @endphp
@@ -68,9 +54,7 @@
             {{ $user->description ?? 'No description yet.' }}
         </p>
 
-        {{-- STATS COUNTER --}}
         <div class="flex justify-center gap-6 mt-5 text-xs font-medium text-gray-400 relative z-2">
-            {{-- Following --}}
             <div onclick="openUserModal('following')" class="cursor-pointer hover:text-white transition group">
                 <span class="text-white font-bold text-sm group-hover:underline decoration-teal-500 underline-offset-4" id="following-count">
                     {{ $user->followings_count }}
@@ -78,7 +62,6 @@
                 Following
             </div>
 
-            {{-- Followers --}}
             <div onclick="openUserModal('followers')" class="cursor-pointer hover:text-white transition group">
                 <span class="text-white font-bold text-sm group-hover:underline decoration-teal-500 underline-offset-4" id="followers-count">
                     {{ $user->followers_count }}
@@ -86,14 +69,12 @@
                 Followers
             </div>
 
-            {{-- Post Count --}}
             <div>
                 <span class="text-white font-bold text-sm">{{ $user->posts_count }}</span> Post
             </div>
         </div>
     </div>
 
-    {{-- TAB NAVIGATION --}}
     <div class="mt-8 pt-2 border-b border-grayShadow sticky top-[72px] bg-[#121212] z-10">
         <div class="flex justify-center gap-12 text-sm font-medium">
             <button onclick="switchTab('posts')" id="tab-btn-posts" class="tab-btn pb-3 border-b-2 border-teal-500 text-white px-2 transition-colors">
@@ -110,7 +91,6 @@
 
     <div class="max-w-3xl mx-auto min-h-[300px]">
         
-        {{-- TAB 1: POSTS --}}
         <div id="content-posts" class="tab-content px-4 md:px-0">
             @forelse($posts as $post)
                 @include('partials.post-item', ['post' => $post])
@@ -119,7 +99,6 @@
             @endforelse
         </div>
 
-        {{-- TAB 2: REPLIES --}}
         <div id="content-replies" class="tab-content hidden py-0">
             @forelse($replies as $reply)
                 <article onclick="window.location='{{ route('posts.show', $reply->post_id) }}'" 
@@ -172,7 +151,6 @@
             @endforelse
         </div>
 
-        {{-- TAB 3: MEDIA --}}
         <div id="content-media" class="tab-content hidden py-1">
             <div class="grid grid-cols-3 gap-1">
                 @forelse($media as $item)
@@ -204,7 +182,6 @@
     </div>
 </div>
 
-{{-- MODAL EDIT PROFILE --}}
 @if(auth()->id() === $user->id)
     <div id="editProfileModal" class="fixed inset-0 z-[60] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-[#121212] w-full max-w-2xl rounded-lg shadow-2xl border border-gray-800 transform scale-95 transition-transform duration-300" id="editModalContent">
@@ -264,11 +241,9 @@
     </div>
 @endif
 
-{{-- MODAL LIST USER (FOLLOWERS / FOLLOWING) --}}
 <div id="userListModal" class="fixed inset-0 z-[70] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-[#121212] w-full max-w-sm rounded-xl shadow-2xl border border-gray-800 flex flex-col max-h-[60vh]">
         
-        {{-- Header Modal --}}
         <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#121212] rounded-t-xl sticky top-0 z-10">
             <h3 id="modalTitle" class="text-white font-bold text-lg capitalize tracking-wide">Followers</h3>
             <button onclick="closeUserModal()" class="text-gray-400 hover:text-white transition">
@@ -278,15 +253,12 @@
             </button>
         </div>
 
-        {{-- Content List (Scrollable) --}}
         <div class="overflow-y-auto p-2 flex-1 custom-scrollbar">
             
-            {{-- LIST FOLLOWERS --}}
             <div id="list-followers" class="user-list-content hidden space-y-1">
                 @forelse($followers as $f)
                     <a href="{{ route('profile.show', $f->id) }}" class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition group">
                         
-                        {{-- Avatar Logic (Database / Initials) --}}
                         <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 border border-transparent group-hover:border-gray-600">
                             @if($f->avatar)
                                 <img src="{{ Storage::url($f->avatar) }}" class="w-full h-full object-cover" alt="{{ $f->name }}">
@@ -297,7 +269,6 @@
                             @endif
                         </div>
 
-                        {{-- Nama User --}}
                         <span class="text-gray-200 font-semibold text-sm group-hover:text-white truncate">
                             {{ $f->name }}
                         </span>
@@ -308,13 +279,10 @@
                     </div>
                 @endforelse
             </div>
-
-            {{-- LIST FOLLOWING --}}
             <div id="list-following" class="user-list-content hidden space-y-1">
                 @forelse($followings as $f)
                     <a href="{{ route('profile.show', $f->id) }}" class="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition group">
                         
-                        {{-- Avatar Logic --}}
                         <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 border border-transparent group-hover:border-gray-600">
                             @if($f->avatar)
                                 <img src="{{ Storage::url($f->avatar) }}" class="w-full h-full object-cover" alt="{{ $f->name }}">
@@ -324,8 +292,6 @@
                                 </div>
                             @endif
                         </div>
-
-                        {{-- Nama User --}}
                         <span class="text-gray-200 font-semibold text-sm group-hover:text-white truncate">
                             {{ $f->name }}
                         </span>
@@ -341,11 +307,9 @@
     </div>
 </div>
 
-{{-- JAVASCRIPT --}}
 <script>
     const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
 
-    // --- TAB SWITCHING ---
     function switchTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -358,7 +322,6 @@
         activeBtn.classList.add('border-teal-500', 'text-white');
     }
 
-    // --- FOLLOW SYSTEM LOGIC (ADDED) ---
     async function toggleFollow(button, userId) {
         let isFollowing = button.getAttribute('data-following') === 'true';
         let btnText = button.querySelector('.btn-text');
@@ -396,7 +359,6 @@
         }
     }
 
-    // --- MODAL USER LIST (Followers/Following) ---
     function openUserModal(type) {
         const modal = document.getElementById('userListModal');
         const title = document.getElementById('modalTitle');
@@ -415,7 +377,6 @@
         document.getElementById('userListModal').classList.add('hidden');
     }
     
-    // Close modal on click outside
     const userModal = document.getElementById('userListModal');
     if(userModal){
         userModal.addEventListener('click', function(e) {
@@ -423,7 +384,6 @@
         });
     }
 
-    // --- MODAL EDIT PROFILE ---
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('editProfileModal');
         if(modal) {
@@ -461,7 +421,6 @@
         }
     }
 
-    // --- POST INTERACTION LOGIC ---
     function toggleComments(postId) {
         document.getElementById(`comments-section-${postId}`).classList.toggle('hidden');
     }

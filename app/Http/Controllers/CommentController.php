@@ -25,7 +25,6 @@ class CommentController extends Controller
             'parent_id' => $request->parent_id
         ]);
 
-        // 🔥 FIX UTAMA: SIMPAN KE DATABASE
         $post->increment('comments_count');
 
         $comment->load(['user', 'replies.user']);
@@ -59,7 +58,6 @@ class CommentController extends Controller
 
         $comment->delete();
 
-        // 🔥 FIX: SYNC COUNTER
         Post::where('id', $postId)->decrement('comments_count');
 
         return response()->json([

@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
 {
-    // Ensure pivot table exists
     Schema::create('post_topic', function (Blueprint $table) {
         $table->id();
         $table->foreignId('post_id')->constrained()->onDelete('cascade');
         $table->foreignId('topic_id')->constrained()->onDelete('cascade');
         $table->timestamps();
-        
-        // Prevent duplicates
         $table->unique(['post_id', 'topic_id']);
     });
 }

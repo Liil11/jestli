@@ -15,9 +15,7 @@
     @foreach($posts as $post)
         <article class="post-item bg-feedsbg w-full overflow-visible flex flex-col text-white border-b border-grayShadow relative" id="post-{{ $post->id }}">
             
-            {{-- HEADER: Avatar + Nama + Menu Titik 3 --}}
             <header class="flex items-center justify-between px-6 pt-4 relative">
-                {{-- Kiri: Info User --}}
                 <a href="{{ route('profile.show', $post->user->id) }}" class="flex items-center space-x-4 group">
                     <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center font-semibold overflow-hidden border border-transparent group-hover:border-teal-500 transition">
                         @if($post->user->avatar)
@@ -32,7 +30,6 @@
                     </div>
                 </a>
 
-                {{-- Kanan: Menu Titik 3 (Hanya muncul jika yang login adalah pemilik postingan) --}}
                 @if(auth()->id() === $post->user->id)
                     <div class="relative">
                         <button onclick="togglePostMenu({{ $post->id }})" class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-tealSecond transition focus:outline-none">
@@ -41,7 +38,6 @@
                             </svg>
                         </button>
 
-                        {{-- Dropdown Menu --}}
                         <div id="post-menu-{{ $post->id }}" class="hidden absolute right-0 mt-2 w-32 bg-grayComp border border-grayShadow rounded-lg shadow-lg z-1 overflow-hidden">
                             <button onclick="deletePost({{ $post->id }})" class="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-600 hover:text-white flex items-center gap-2 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,12 +55,12 @@
             </div>
             
             @if($post->image)
-            <div class="w-full bg-gray-100 flex justify-center">
+            <div class="w-full bg-darkest flex justify-center">
                 <img src="{{ Storage::url($post->image) }}" class="object-contain w-full h-auto max-h-[900px] block" loading="lazy">
             </div>
             @endif
 
-            {{-- Action Buttons (Like/Comment/Upvote) --}}
+            {{--action button--}}
             <div class="px-10 py-5 flex flex-row gap-60 text-gray-400 select-none">
                 <button onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="flex items-center gap-2 transition group {{ $post->isLikedByAuthUser() ? 'text-pink-600' : 'hover:text-pink-600' }}">
                     <div class="w-8 h-8 flex items-center justify-center">
@@ -88,7 +84,7 @@
                 </button>
             </div>
 
-            {{-- Comment Section --}}
+            {{-- comment section--}}
             <div id="comments-section-{{ $post->id }}" class="hidden px-6 pb-6 bg-[#151515] border-t border-grayShadow">
                 <form onsubmit="event.preventDefault(); submitCommentAjax({{ $post->id }});" class="flex gap-3 mb-4 pt-4">
                     @csrf
@@ -115,7 +111,7 @@
 
 </div>
 
-{{-- Loading Spinner & Sentinel --}}
+{{--loading spinner dan sentinel--}}
 <div id="loading" class="text-center py-4 hidden">
     <svg class="animate-spin h-8 w-8 text-teal-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -127,17 +123,15 @@
 <script>
     const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
 
-    // --- NEW: DELETE POST LOGIC ---
+    // delete
     function togglePostMenu(postId) {
         const menu = document.getElementById(`post-menu-${postId}`);
-        // Tutup semua menu lain dulu biar rapi
         document.querySelectorAll('[id^="post-menu-"]').forEach(el => {
             if (el.id !== `post-menu-${postId}`) el.classList.add('hidden');
         });
         menu.classList.toggle('hidden');
     }
 
-    // Tutup menu saat klik di luar
     document.addEventListener('click', function(event) {
         const isButton = event.target.closest('button[onclick^="togglePostMenu"]');
         const isMenu = event.target.closest('[id^="post-menu-"]');
@@ -162,7 +156,6 @@
             const data = await response.json();
 
             if (data.success) {
-                // Efek visual menghapus element dari DOM
                 const postElement = document.getElementById(`post-${postId}`);
                 postElement.style.transition = "all 0.5s ease";
                 postElement.style.opacity = "0";
@@ -180,7 +173,7 @@
         }
     }
 
-    // --- INFINITE SCROLL & OTHER FUNCTIONS (SAME AS BEFORE) ---
+    // infinite scroll
     let nextPageUrl = "{{ $posts->nextPageUrl() }}";
     let isLoading = false;
     const sentinel = document.getElementById('scroll-sentinel');
@@ -259,7 +252,7 @@
         }
     }
 
-    // --- AJAX ACTIONS ---
+    // ajax
     async function submitCommentAjax(postId, rootId = null) {
         let inputBody, inputParent;
         if (rootId) {

@@ -11,22 +11,15 @@ class ProfileController extends Controller
 {
     public function show(User $user)
     {
-        // 1. TAMBAHAN WAJIB: Hitung jumlah follower/following untuk Header
-        // (Ini diperlukan agar {{ $user->followers_count }} di view tidak error)
         $user->loadCount(['followers', 'followings', 'posts']);
 
-        // 2. TAMBAHAN WAJIB: Ambil List Followers & Followings untuk MODAL
-        // (Hanya ambil 50 terakhir agar ringan)
         $followers = $user->followers()->latest()->limit(50)->get();
         $followings = $user->followings()->latest()->limit(50)->get();
 
-        // 3. LOGIKA ASLI (Tidak diubah-ubah)
-        // Kita tidak pakai withCount('likes') karena Anda sudah punya kolom 'likes_count' di tabel posts
         $posts = $user->posts()->latest()->get();
         
         $media = $user->posts()->whereNotNull('image')->latest()->get();
         
-        // Ambil komentar user, beserta post terkaitnya
         $replies = $user->comments()->with('post')->latest()->get();
 
         return view('profile.show', compact('user', 'posts', 'media', 'replies', 'followers', 'followings'));

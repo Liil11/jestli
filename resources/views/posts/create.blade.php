@@ -71,8 +71,8 @@
         const closeBtn = document.getElementById('closePostModalBtn');
         
         // Triggers
-        const sidebarBtn = document.getElementById('openPostModalSidebar'); // Tombol Sidebar
-        const feedBtn = document.getElementById('feedCreateTrigger');     // Tombol di Feed (jika ada)
+        const sidebarBtn = document.getElementById('openPostModalSidebar'); 
+        const feedBtn = document.getElementById('feedCreateTrigger'); 
 
         // Form Elements
         const imageInput = document.getElementById('imageInput');
@@ -82,9 +82,8 @@
 
         // Functions
         function openModal(e) {
-            if(e) e.preventDefault(); // Mencegah link pindah halaman
+            if(e) e.preventDefault();
             modal.classList.remove('hidden');
-            // Small delay to allow transition
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');

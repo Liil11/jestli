@@ -45,8 +45,8 @@
         <div class="border-t flex flex-col gap-2 pt-3 mt-5 border-grayShadow">
             <h1 class="font-medium text-[18.5px] pl-4">Information</h1>
             <nav class="flex flex-col text-left">
-                <a href="" class="hover:bg-tealPrimary py-2 px-3 pl-11">About Us</a>
-                <a href="" class="hover:bg-tealPrimary py-2 px-3 pl-11">Contact</a>
+                <a href="{{ route('about') }}" class="hover:bg-tealPrimary py-2 px-3 pl-11">About Us</a>
+                <a href="{{ route('contact') }}" class="hover:bg-tealPrimary py-2 px-3 pl-11">Contact</a>
             </nav>
         </div>
 
@@ -62,7 +62,7 @@
 
             <div class="flex items-center space-x-4">
                 <div class="flex gap-8 mr-20">
-                    <a href=""
+                    <a href="{{ route('dashboard') }}"
                        class="relative inline-block
                               after:content-[''] after:absolute after:left-0 after:bottom-0
                               after:h-0.5 after:bg-tealPrimary after:w-full
@@ -72,7 +72,7 @@
                         For You
                     </a>
 
-                    <a href=""
+                    <a href="{{ route('dashboard') }}"
                        class="relative inline-block
                               after:content-[''] after:absolute after:left-0 after:bottom-0
                               after:h-0.5 after:bg-tealPrimary after:w-full
@@ -82,7 +82,7 @@
                         Trending
                     </a>
 
-                    <a href=""
+                    <a href="{{ route('dashboard') }}"
                        class="relative inline-block
                               after:content-[''] after:absolute after:left-0 after:bottom-0
                               after:h-0.5 after:bg-tealPrimary after:w-full
@@ -155,13 +155,13 @@
 <script>
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    // Toggle View Comment Section
+    // toggle view Comment Section
     function toggleComments(postId) {
         const section = document.getElementById(`comments-section-${postId}`);
         section.classList.toggle('hidden');
     }
 
-    // Toggle Like Post
+    // toggle like post
     async function toggleLike(postId) {
         const btn = document.getElementById(`like-btn-${postId}`);
         const countSpan = document.getElementById(`like-count-${postId}`);
@@ -177,7 +177,6 @@
             });
             const data = await response.json();
 
-            // Update UI
             countSpan.innerText = data.count;
             if (data.status === 'liked') {
                 btn.classList.add('text-pink-600');
@@ -193,7 +192,7 @@
         }
     }
 
-    // Toggle Upvote Post
+    // ini toggle upvote post
     async function toggleUpvote(postId) {
         const btn = document.getElementById(`upvote-btn-${postId}`);
         const countSpan = document.getElementById(`upvote-count-${postId}`);
@@ -209,7 +208,6 @@
             });
             const data = await response.json();
 
-            // Update UI
             countSpan.innerText = data.count;
             if (data.status === 'upvoted') {
                 btn.classList.add('text-green-500');
@@ -229,9 +227,7 @@
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-/* ===============================
-   SUBMIT COMMENT / REPLY (AJAX)
-================================ */
+/*SUBMIT COMMENT / REPLY (AJAX)*/
 function submitCommentAjax(postId, parentId = null) {
     let input = parentId
         ? document.getElementById(`reply-input-${parentId}`)
@@ -259,16 +255,14 @@ function submitCommentAjax(postId, parentId = null) {
         return res.json();
     })
     .then(() => {
-        location.reload(); // ⬅️ SENGAJA reload biar DOM kamu aman
+        location.reload();
     })
     .catch(err => {
         alert(err.message);
     });
 }
 
-/* ===============================
-   LIKE COMMENT
-================================ */
+/*LIKE COMMENT */
 function toggleCommentLike(commentId) {
     fetch(`/comments/${commentId}/like`, {
         method: 'POST',
@@ -295,9 +289,7 @@ function toggleCommentLike(commentId) {
     });
 }
 
-/* ===============================
-   DELETE COMMENT
-================================ */
+/*DELETE COMMENT*/
 function deleteComment(commentId) {
     if (!confirm('Hapus komentar?')) return;
 

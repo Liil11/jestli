@@ -9,76 +9,42 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\TopicController;
 
-/*
-|--------------------------------------------------------------------------
-| Public
-|--------------------------------------------------------------------------
-*/
 
-Route::get('/', fn () => view('landing'))->name('landing');
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
 
 require __DIR__.'/auth.php';
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware('auth')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard & Explore
-    |--------------------------------------------------------------------------
-    */
+    /*Dashboard & Explore*/
     Route::get('/dashboard', [PostController::class, 'index'])->name('dashboard');
     Route::get('/explore', [PostController::class, 'explore'])->name('explore');
-    // Add this route for showing individual topics
     Route::get('/topics/{topic:name}', [TopicController::class, 'show'])->name('topics.show');
-    /*
-    |--------------------------------------------------------------------------
-    | Posts
-    |--------------------------------------------------------------------------
-    */
+
+    /*Posts*/
     Route::resource('posts', PostController::class)->except(['edit','update']);
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Profile
-    |--------------------------------------------------------------------------
-    */
-
-    // 🔥 PROFILE BY USERNAME (UNTUK @MENTION)
+    /*Profile*/
     Route::get('/profile/u/{username}', [ProfileController::class, 'showByUsername'])
         ->name('profile.username');
 
-    // PROFILE BY ID (TETAP ADA, AMAN)
     Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/{user}', [ProfileController::class, 'update'])->name('profile.update');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Search
-    |--------------------------------------------------------------------------
-    */
+    /*Search*/
     Route::get('/search', [SearchController::class, 'index'])->name('search');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Post Interactions (AJAX)
-    |--------------------------------------------------------------------------
-    */
+    /*Post Interactions (AJAX)*/
     Route::post('/posts/{post}/like', [InteractionController::class, 'toggleLike'])->name('posts.like');
     Route::post('/posts/{post}/upvote', [InteractionController::class, 'toggleUpvote'])->name('posts.upvote');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Comments (AJAX)
-    |--------------------------------------------------------------------------
-    */
+    /*Comments (AJAX)*/
     Route::post('/posts/{id}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::post('/comments/{comment}/like', [CommentController::class, 'toggleLike'])->name('comments.like');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
@@ -89,10 +55,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/user/{user}/follow', [FollowController::class, 'toggle'])->name('user.follow');
 
     Route::get('/about-us', function () {
-    return view('pages.about');
-})->name('about');
+        return view('pages.about');
+    })->name('about');
 
-Route::get('/contact', function () {
-    return view('pages.contact');
-})->name('contact');
+    Route::get('/contact', function () {
+        return view('pages.contact');
+    })->name('contact');
 });

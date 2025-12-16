@@ -1,4 +1,4 @@
-{{-- resources/views/partials/comment-item.blade.php --}}
+
 
 @php
 use App\Models\User;
@@ -20,13 +20,6 @@ if (!function_exists('parseMentionsPartial')) {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| 🔥 ROOT ID FIX (INI YANG PENTING)
-|--------------------------------------------------------------------------
-| - Parent comment → root_id = comment->id
-| - Reply comment  → root_id dikirim dari include
-*/
 $rootId = $root_id ?? $comment->id;
 $replyCount = $comment->replies->count();
 @endphp
@@ -59,7 +52,6 @@ $replyCount = $comment->replies->count();
             </p>
 
             <div class="flex items-center gap-4 mt-2 text-xs">
-                {{-- 🔥 ROOT ID AMAN --}}
                 <button onclick="replyToComment({{ $rootId }}, {{ $comment->id }}, '{{ $comment->user->name }}')"
                         class="text-gray-500 hover:text-white font-semibold">
                     Reply
@@ -85,7 +77,6 @@ $replyCount = $comment->replies->count();
                 @endif
             </div>
 
-            {{-- 🔥 HANYA PARENT YANG PUNYA FORM & REPLIES --}}
             @if(!$comment->parent_id)
                 <div id="reply-form-container-{{ $comment->id }}" class="hidden mt-3 fade-in">
                     <form onsubmit="event.preventDefault(); submitCommentAjax({{ $comment->post_id }}, {{ $comment->id }});"

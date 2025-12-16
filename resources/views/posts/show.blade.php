@@ -3,8 +3,7 @@
 @section('content')
 <div class="max-w-3xl mx-auto min-h-screen bg-feedsbg border-x border-grayComp pb-20">
     
-    {{-- HEADER: Tombol Back & Judul --}}
-    <div class="sticky top-[72px] z-20 bg-[#121212]/95 backdrop-blur-md border-b border-grayComp px-4 py-3 flex items-center gap-4">
+    <div class="sticky top-[72px] z-2 bg-[#121212]/95 backdrop-blur-md border-b border-grayComp px-4 py-3 flex items-center gap-4">
         <a href="{{ url()->previous() }}" class="p-2 rounded-full hover:bg-grayComp text-gray-300 hover:text-white transition">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -13,31 +12,22 @@
         <h2 class="text-lg font-bold text-white">Post</h2>
     </div>
 
-    {{-- KONTEN UTAMA: Mengambil dari Partial --}}
     <div class="mt-0">
         @include('partials.post-item', ['post' => $post])
     </div>
 
 </div>
 
-{{-- SCRIPT: Kebutuhan Interaksi (Like, Comment, Reply) --}}
-{{-- PENTING: Jika kamu belum memindahkan fungsi JS di index.blade.php ke file global (public/js/app.js), 
-     maka kamu HARUS menyertakan script ini agar tombol-tombol di post-item berfungsi di halaman ini. --}}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // FITUR TAMBAHAN: Otomatis buka kolom komentar saat masuk halaman detail
         const commentSection = document.getElementById("comments-section-{{ $post->id }}");
         if(commentSection) {
             commentSection.classList.remove('hidden');
         }
     });
 
-    // --- SETUP VARIABLES ---
     const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
 
-    // --- COPAS FUNGSI DARI INDEX.BLADE.PHP ---
-    // Agar tombol Like, Reply, dan Comment berfungsi di halaman detail ini.
-    
     function toggleComments(postId) {
         document.getElementById(`comments-section-${postId}`).classList.toggle('hidden');
     }
@@ -49,7 +39,7 @@
             if (btnElement) {
                 const span = btnElement.querySelector('span');
                 if (span) {
-                    // Update text View/Hide
+                    
                     span.innerText = span.innerText.replace(container.classList.contains('hidden') ? 'Hide' : 'View', container.classList.contains('hidden') ? 'View' : 'Hide');
                 }
             }
@@ -59,7 +49,6 @@
     function replyToComment(rootId, commentId, username) {
         const formContainer = document.getElementById(`reply-form-container-${rootId}`);
         const inputBody = document.getElementById(`reply-input-${rootId}`);
-        // Cari input hidden parent_id
         const inputParent = formContainer ? formContainer.querySelector(`input[name="parent_id"]`) : null;
 
         if (!formContainer || !inputBody) return;
@@ -72,7 +61,7 @@
         inputBody.focus();
     }
 
-    // AJAX SUBMIT (Sama persis dengan Index/Profile)
+    // AJAX SUBMIT
     async function submitCommentAjax(postId, rootId = null) {
         let inputBody, inputParent;
         
@@ -200,8 +189,7 @@
                 
                 const postCounter = document.getElementById(`post-comment-count-${data.post_id}`);
                 if(postCounter) postCounter.innerText = Math.max(0, parseInt(postCounter.innerText) - 1);
-                
-                // Logic update UI jika nested reply dihapus (opsional, sesuaikan dgn index.blade.php)
+
             }
         } catch (error) { console.error(error); }
     }
